@@ -468,16 +468,19 @@ body.unlocked .gate,body.unlocked .gate-only{display:none}
   function docs(s){return s.docs.map(function(d){return d.data()}).filter(Boolean)}
   var usingSnap=true, PW=null, keyCache={}, unlocked=false;
   function b64(x){var bin=atob(x),u=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u}
+  /* the cache key includes the password, and only a key that decrypted successfully is kept */
   async function deriveKey(pw,env){
-    var id=env.salt+'|'+env.iter; if(keyCache[id])return keyCache[id];
+    var id=pw+'|'+env.salt+'|'+env.iter; if(keyCache[id])return {k:keyCache[id],id:id,cached:true};
     var base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
     var k=await crypto.subtle.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:b64(env.salt),iterations:env.iter},base,{name:'AES-GCM',length:256},false,['decrypt']);
-    keyCache={}; keyCache[id]=k; return k;
+    return {k:k,id:id,cached:false};
   }
   async function fetchEnv(name){var r=await fetch(name+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw {code:'net'};return r.json()}
   async function decrypt(env,pw){
-    var k=await deriveKey(pw,env);
-    try{return await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(env.iv)},k,b64(env.ct))}catch(e){throw {code:'badpw'}}
+    var d=await deriveKey(pw,env), out;
+    try{out=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(env.iv)},d.k,b64(env.ct))}catch(e){throw {code:'badpw'}}
+    if(!d.cached){keyCache={};keyCache[d.id]=d.k}
+    return out;
   }
   function applySnap(snap){
     state.events=(snap.events||[]).slice().sort(function(a,b){return a.ts<b.ts?1:-1});
@@ -541,7 +544,7 @@ body.unlocked .gate,body.unlocked .gate-only{display:none}
 
   $('gate-f').addEventListener('submit',async function(ev){
     ev.preventDefault();
-    var pw=$('pw').value, err=$('pw-err'), go=$('pw-go');
+    var pw=$('pw').value.trim(), err=$('pw-err'), go=$('pw-go');
     if(!pw){err.textContent=t('needPw');err.hidden=false;$('pw').setAttribute('aria-invalid','true');$('pw').focus();return}
     go.disabled=true; go.firstChild.textContent=t('unlocking'); err.hidden=true;
     var res=await unlock(pw,$('remember').checked,false);
