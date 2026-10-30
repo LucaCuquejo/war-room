@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Tablero privado con contraseña sobre el drenaje de hot wallets de Binance de octubre de 2026.">
+<title>Binance 14 War Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Exo+2:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>
+/* Layout: Swiss-grid incident console, dense — status bar, KPI strip, actors | wallets, live feed. Dark-first per the ui-ux-pro-max system (gold trust + violet tech). */
+:root{
+  --bg:#0F172A; --card:#1B2233; --muted:#272F42; --fg:#F8FAFC; --fg-2:#A9B4C7; --border:#334155;
+  --primary:#F59E0B; --primary-ink:#FBBF24; --on-primary:#0F172A; --accent:#A78BFA;
+  --crit:#F87171; --ok:#34D399; --info:#7DD3FC; --scrim:rgba(2,6,23,.78); --imgbg:#E8EBF1;
+  --f-display:"Orbitron","Exo 2",system-ui,sans-serif;
+  --f-body:"Exo 2",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px;
+  --r:6px; --t:200ms;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#F4F6FA; --card:#FFFFFF; --muted:#EEF1F6; --fg:#0F172A; --fg-2:#475569; --border:#D9DFE8;
+  --primary:#F59E0B; --primary-ink:#B45309; --on-primary:#0F172A; --accent:#6D28D9;
+  --crit:#C81E1E; --ok:#047857; --info:#0369A1; --scrim:rgba(15,23,42,.6); --imgbg:#E8EBF1; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#F4F6FA; --card:#FFFFFF; --muted:#EEF1F6; --fg:#0F172A; --fg-2:#475569; --border:#D9DFE8;
+  --primary:#F59E0B; --primary-ink:#B45309; --on-primary:#0F172A; --accent:#6D28D9;
+  --crit:#C81E1E; --ok:#047857; --info:#0369A1; --scrim:rgba(15,23,42,.6); --imgbg:#E8EBF1; color-scheme:light}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--f-body);transition:background var(--t),color var(--t);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:var(--s5) 48px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.wrap{max-width:1280px;margin:0 auto;display:grid;gap:var(--s5)}
+a{color:var(--primary-ink);text-underline-offset:2px}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+button{cursor:pointer;font:inherit}
+
+/* top bar */
+.bar{display:flex;flex-wrap:wrap;gap:var(--s3) var(--s5);align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:var(--s3)}
+.live{display:flex;gap:var(--s2);align-items:center;font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--crit)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--crit);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.upd{font:12px var(--f-mono);color:var(--fg-2)}
+.controls{display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--card)}
+.seg button{min-height:40px;min-width:44px;padding:0 var(--s3);border:0;background:transparent;color:var(--fg-2);font:600 13px var(--f-body);display:inline-flex;gap:6px;align-items:center;justify-content:center;transition:background var(--t),color var(--t)}
+.seg button+button{border-left:1px solid var(--border)}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.seg button:hover:not([aria-pressed="true"]){background:var(--muted);color:var(--fg)}
+.seg svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.how{min-height:40px;padding:0 var(--s4);border:0;border-radius:var(--r);background:var(--primary);color:var(--on-primary);font:700 13px var(--f-body);display:inline-flex;gap:var(--s2);align-items:center;transition:filter var(--t)}
+.how:hover{filter:brightness(1.08)}
+.next{display:flex;align-items:center;gap:var(--s3);min-height:40px;padding:0 var(--s2) 0 var(--s3);border:1px solid var(--border);border-radius:var(--r);background:var(--card)}
+.next .nt{display:grid;line-height:1.15}
+.next .nt small{font:600 10px var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--fg-2)}
+.next .nt b{font:600 14px var(--f-mono);font-variant-numeric:tabular-nums}
+.next .nt b.busy{color:var(--primary-ink)}
+.ring{width:22px;height:22px;flex:none;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:3}
+.ring .tr{stroke:var(--muted)} .ring .pr{stroke:var(--primary);stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+.rf{min-height:32px;min-width:44px;border:1px solid var(--border);background:var(--muted);color:var(--fg);border-radius:4px;padding:0 var(--s2);font:600 12.5px var(--f-body);display:inline-flex;gap:6px;align-items:center;transition:background var(--t)}
+.rf:hover:not(:disabled){background:var(--border)}
+.rf:disabled{opacity:.55;cursor:not-allowed}
+.rf svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rf.spin svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:calc(100vw - 32px);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:var(--r);font-size:14px;z-index:20;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.how svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+/* title */
+.title{display:grid;gap:var(--s2)}
+h1{font:800 clamp(26px,4.6vw,44px)/1.05 var(--f-display);letter-spacing:.01em;margin:0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--primary-ink)}
+.sub{color:var(--fg-2);margin:0;max-width:72ch;font-size:15px}
+
+/* kpis */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--border);border-radius:var(--r);background:var(--card)}
+@media (max-width:860px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{padding:var(--s4);display:grid;gap:2px;border-left:1px solid var(--border);min-width:0}
+.kpi:first-child{border-left:0}
+@media (max-width:860px){.kpi:nth-child(3){border-left:0}.kpi:nth-child(n+3){border-top:1px solid var(--border)}}
+.kpi b{font:700 clamp(20px,2.6vw,28px)/1.15 var(--f-body);font-variant-numeric:tabular-nums}
+.kpi small{color:var(--fg-2);font-size:12.5px}
+.kpi.crit b{color:var(--crit)} .kpi.ok b{color:var(--ok)}
+.lbl{font:600 11px var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--fg-2)}
+
+/* grid */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:var(--s5)}
+@media (max-width:960px){.grid{grid-template-columns:minmax(0,1fr)}}
+section{min-width:0}
+h2{font:700 15px var(--f-display);letter-spacing:.04em;text-transform:uppercase;margin:0 0 var(--s3);display:flex;justify-content:space-between;align-items:baseline;gap:var(--s2)}
+h2 .lbl{text-transform:none;letter-spacing:.02em;font-weight:400}
+.actors{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--s2)}
+.actor{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:var(--s3);display:grid;gap:6px;align-content:start}
+.actor .top{display:flex;justify-content:space-between;gap:var(--s2);align-items:start}
+.actor strong{font:700 15px var(--f-body)}
+.actor p{margin:0;font-size:14px}
+.actor .role{font-size:12.5px;color:var(--fg-2)}
+.handles{display:flex;flex-wrap:wrap;gap:6px}
+.handles a{font:12px var(--f-mono);text-decoration:none;background:var(--muted);padding:3px 7px;border-radius:4px;transition:background var(--t)}
+.handles a:hover{background:var(--border)}
+.pill{font:600 10.5px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.s-attacker{color:var(--crit)} .s-victim{color:var(--primary-ink)} .s-freezing{color:var(--ok)} .s-investigating{color:var(--info)} .s-monitoring{color:var(--fg-2)}
+.tablebox{overflow-x:auto;background:var(--card);border:1px solid var(--border);border-radius:var(--r)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+th,td{text-align:left;padding:10px var(--s3);border-bottom:1px solid var(--border);vertical-align:top}
+th{font:600 11px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--fg-2);background:var(--muted)}
+tr:last-child td{border-bottom:0}
+td.addr{font:12.5px var(--f-mono);white-space:nowrap}
+.copy{border:1px solid var(--border);background:var(--muted);color:var(--fg);font:11px var(--f-mono);border-radius:4px;padding:2px 7px;margin-left:6px}
+
+/* feed */
+.feedhead{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;justify-content:space-between;margin-bottom:var(--s3)}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.filters button{min-height:36px;font:600 13px var(--f-body);border:1px solid var(--border);background:var(--card);color:var(--fg);border-radius:99px;padding:0 var(--s3);transition:background var(--t)}
+.filters button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.feed{list-style:none;margin:0;padding:0;background:var(--card);border:1px solid var(--border);border-radius:var(--r)}
+.ev{display:grid;grid-template-columns:124px minmax(0,1fr);gap:4px var(--s4);padding:var(--s3) var(--s4);border-bottom:1px solid var(--border);border-left:3px solid transparent}
+.ev:last-child{border-bottom:0}
+.ev.k-onchain{border-left-color:var(--crit)} .ev.k-freeze{border-left-color:var(--ok)} .ev.k-statement{border-left-color:var(--accent)} .ev.k-market{border-left-color:var(--primary)}
+.ev time{font:12px/1.45 var(--f-mono);color:var(--fg-2);font-variant-numeric:tabular-nums}
+.ev time b{display:block;color:var(--fg);font-weight:600}
+.ev .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;font-size:12.5px;color:var(--fg-2);margin-bottom:2px}
+.ev .meta strong{color:var(--fg);font-size:14px}
+.ev p{margin:0;max-width:78ch;font-size:15px}
+.ev .src{font-size:12.5px}
+@media (max-width:540px){.ev{grid-template-columns:minmax(0,1fr)}}
+.empty{padding:28px 16px;color:var(--fg-2);text-align:center}
+.note{font-size:13px;color:var(--fg-2);max-width:90ch;margin:var(--s2) 0 0}
+
+/* dialog */
+dialog#how{border:1px solid var(--border);border-radius:8px;padding:0;background:var(--card);color:var(--fg);width:min(1000px,calc(100vw - 24px));max-height:calc(100dvh - 24px)}
+dialog#how::backdrop{background:var(--scrim)}
+.dh{position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);background:var(--card);border-bottom:1px solid var(--border)}
+.dh strong{font:700 clamp(15px,2.4vw,19px)/1.2 var(--f-display);text-wrap:balance}
+.dh button{min-height:40px;min-width:44px;font:600 13px var(--f-body);border:1px solid var(--border);background:var(--muted);color:var(--fg);border-radius:var(--r);padding:0 var(--s3)}
+.dbody{padding:var(--s4);display:grid;gap:var(--s4)}
+.dbody img{display:block;width:100%;height:auto;border-radius:4px;background:var(--imgbg)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:var(--s3);margin:0;padding:0;list-style:none}
+.steps li{border-top:2px solid var(--primary);padding-top:var(--s2);font-size:14px}
+.steps b{display:block;font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--primary-ink);margin-bottom:2px}
+
+/* gate */
+.gate{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:var(--s5);align-items:start}
+@media (max-width:860px){.gate{grid-template-columns:minmax(0,1fr)}}
+.gate-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:var(--s5);display:grid;gap:var(--s3)}
+.gate-card h2{font:700 clamp(18px,2.4vw,22px)/1.25 var(--f-display);text-transform:none;letter-spacing:.01em;margin:0;display:block}
+.gate-card p{margin:0;color:var(--fg-2)}
+#gate-f{display:grid;gap:var(--s2);margin-top:var(--s2)}
+.flabel{font:600 13px var(--f-body)}
+.pwrow{display:flex;gap:var(--s2);flex-wrap:wrap}
+.pwrow input{flex:1 1 220px;min-width:0;min-height:48px;padding:0 var(--s3);border:1px solid var(--border);border-radius:var(--r);background:var(--bg);color:var(--fg);font:500 16px var(--f-mono);transition:border-color var(--t)}
+.pwrow input:focus{border-color:var(--primary);outline:2px solid var(--primary);outline-offset:1px}
+.pwrow input[aria-invalid="true"]{border-color:var(--crit)}
+.go{min-height:48px;min-width:120px;padding:0 var(--s4);border:0;border-radius:var(--r);background:var(--primary);color:var(--on-primary);font:700 15px var(--f-body);transition:filter var(--t)}
+.go:hover:not(:disabled){filter:brightness(1.08)}
+.go:disabled{opacity:.6;cursor:progress}
+.chk{display:flex;gap:var(--s2);align-items:center;font-size:14px;color:var(--fg-2);min-height:44px;cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:var(--primary)}
+.err{margin:0;color:var(--crit);font-size:14px;font-weight:600}
+.gate-facts{list-style:none;margin:0;padding:0;display:grid;gap:var(--s3)}
+.gate-facts li{border-left:2px solid var(--primary);padding:2px 0 2px var(--s3);font-size:14.5px;color:var(--fg-2)}
+.gate-facts b{display:block;color:var(--fg);font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.app{display:grid;gap:var(--s5)}
+body.unlocked .gate,body.unlocked .gate-only{display:none}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="bar"><span class="lbl gate-only" data-i18n="gateBar">Tablero privado</span>
+    <div class="app-only" hidden style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+      <span class="live"><span class="dot" aria-hidden="true"></span><span id="st" data-i18n="status">Incidente en curso</span></span>
+      <span class="upd" id="upd" data-i18n="waiting">Esperando datos…</span>
+    </div>
+    <div class="controls">
+      <div class="next app-only" hidden role="status" aria-live="off">
+        <svg class="ring" viewBox="0 0 24 24" aria-hidden="true"><circle class="tr" cx="12" cy="12" r="9"/><circle class="pr" id="ring" cx="12" cy="12" r="9" stroke-dasharray="56.55" stroke-dashoffset="0"/></svg>
+        <span class="nt"><small id="next-l" data-i18n="nextL">Próxima actualización</small><b id="next-v">--:--</b></span>
+        <button class="rf" type="button" id="refresh"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span id="refresh-l" data-i18n="refresh">Actualizar</span></button>
+      </div>
+      <button class="how app-only" hidden type="button" id="open-how"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg><span data-i18n="howBtn">Cómo ocurrió</span></button>
+      <div class="seg" role="group" aria-label="Idioma / Language" id="lang">
+        <button type="button" data-lang="es" aria-pressed="true">ES</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <div class="seg" role="group" id="theme" aria-label="Tema">
+        <button type="button" data-theme-set="light" aria-pressed="false" aria-label="Claro"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+        <button type="button" data-theme-set="dark" aria-pressed="false" aria-label="Oscuro"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="title">
+    <h1>Binance 14 <em>War Room</em></h1>
+    <p class="sub" data-i18n="sub">Seguimiento del drenaje de hot wallets de Binance vía delegación EIP-7702: actores, wallets del atacante y lo que publica cada parte. Horas en UTC y Argentina (UTC−3).</p>
+  </div>
+
+  <section id="gate" class="gate" aria-labelledby="gate-t">
+    <div class="gate-card">
+      <span class="lbl" data-i18n="gateEyebrow">Acceso con contraseña</span>
+      <h2 id="gate-t" data-i18n="gateTitle">Ingresá para ver el tablero</h2>
+      <p data-i18n="gateText">El acceso es solo con contraseña. Pedísela a quien te pasó el link.</p>
+      <form id="gate-f" novalidate>
+        <label for="pw" class="flabel" data-i18n="pwLabel">Contraseña</label>
+        <div class="pwrow">
+          <input id="pw" name="pw" type="password" autocomplete="current-password" required aria-describedby="pw-err">
+          <button type="submit" id="pw-go" class="go"><span data-i18n="enter">Entrar</span></button>
+        </div>
+        <label class="chk" for="remember"><input type="checkbox" id="remember"> <span data-i18n="remember">Recordar en este dispositivo</span></label>
+        <p class="err" id="pw-err" role="alert" hidden></p>
+      </form>
+    </div>
+    <ul class="gate-facts">
+      <li><b data-i18n="gf1t">Cada 30 min</b><span data-i18n="gf1">Se actualiza solo con lo que publican X, Etherscan y la prensa.</span></li>
+      <li><b data-i18n="gf2t">Con fuentes</b><span data-i18n="gf2">Cada evento enlaza la publicación o el registro on-chain de donde sale.</span></li>
+      <li><b data-i18n="gf3t">ES / EN</b><span data-i18n="gf3">Todo el contenido está en español y en inglés.</span></li>
+    </ul>
+  </section>
+
+  <dialog id="how" aria-labelledby="how-t">
+    <div class="dh"><strong id="how-t" data-i18n="howTitle">Cómo salieron US$5,6 mil M de Binance</strong><button type="button" id="close-how" data-i18n="close">Cerrar</button></div>
+    <div class="dbody">
+      <ol class="steps">
+        <li><b data-i18n="s1t">1 · Preparación</b><span data-i18n="s1">Wallet fondeada por Tornado Cash despliega el contrato sweeper a las 15:59 UTC y lo prueba en 3 wallets chicas.</span></li>
+        <li><b data-i18n="s2t">2 · Toma de control</b><span data-i18n="s2">20:20 UTC: delegación EIP-7702 firmada con la clave de Binance 14. Cómo obtuvo esa firma sigue sin saberse.</span></li>
+        <li><b data-i18n="s3t">3 · Drenaje</b><span data-i18n="s3">20:24 a 21:04 UTC: Binance 14, Hot Wallet 34 y Binance 16 se vacían hacia Exploiter 2.</span></li>
+        <li><b data-i18n="s4t">4 · Dispersión</b><span data-i18n="s4">Circle y Tether congelan en el lugar; ~640 M USDT y 195.460 ETH siguen moviéndose.</span></li>
+      </ol>
+      <img id="how-img" alt="" width="988" height="1508">
+      <p class="note" data-i18n="howNote">Cifras preliminares, reconstruidas con datos de Etherscan y la cobertura hasta el 30/10.</p>
+    </div>
+  </dialog>
+
+  <div id="app" class="app" hidden>
+  <div class="kpis">
+    <div class="kpi crit"><span class="lbl" data-i18n="kDrained">Drenado (estimado)</span><b id="k-drained">—</b><small id="k-drained-n" data-i18n="kDrainedN">rango según fuente</small></div>
+    <div class="kpi ok"><span class="lbl" data-i18n="kFrozen">Congelado por emisores</span><b id="k-frozen">—</b><small id="k-frozen-n">USDT · USDC · USD1</small></div>
+    <div class="kpi"><span class="lbl" data-i18n="kWallets">Wallets marcadas</span><b id="k-wallets">—</b><small data-i18n="kWalletsN">en este tablero</small></div>
+    <div class="kpi"><span class="lbl" data-i18n="kEvents">Eventos registrados</span><b id="k-events">—</b><small id="k-last">—</small></div>
+  </div>
+
+  <div class="grid">
+    <section aria-labelledby="h-actors">
+      <h2 id="h-actors"><span data-i18n="actors">Actores</span> <span class="lbl" id="n-actors"></span></h2>
+      <div class="actors" id="actors"><div class="empty" data-i18n="loadingActors">Cargando actores…</div></div>
+    </section>
+    <section aria-labelledby="h-wallets">
+      <h2 id="h-wallets"><span data-i18n="wallets">Wallets y contratos</span> <span class="lbl">Etherscan</span></h2>
+      <div class="tablebox">
+        <table>
+          <thead><tr><th data-i18n="thLabel">Etiqueta</th><th data-i18n="thAddr">Dirección</th><th data-i18n="thRole">Rol</th><th data-i18n="thMove">Movimiento conocido</th></tr></thead>
+          <tbody id="wallets"><tr><td colspan="4" class="empty" data-i18n="loadingWallets">Cargando wallets…</td></tr></tbody>
+        </table>
+      </div>
+      <p class="note" data-i18n="wnote">Las direcciones truncadas son las que publicó la prensa; se completan cuando aparece la versión entera en una fuente verificable.</p>
+    </section>
+  </div>
+
+  <section aria-labelledby="h-feed">
+    <div class="feedhead">
+      <h2 id="h-feed" style="margin:0" data-i18n="feed">Feed en vivo</h2>
+      <div class="filters" id="filters" role="group">
+        <button type="button" data-k="all" aria-pressed="true" data-i18n="fAll">Todo</button>
+        <button type="button" data-k="onchain" aria-pressed="false">On-chain</button>
+        <button type="button" data-k="freeze" aria-pressed="false" data-i18n="fFreeze">Congelamientos</button>
+        <button type="button" data-k="statement" aria-pressed="false" data-i18n="fStatement">Declaraciones</button>
+        <button type="button" data-k="market" aria-pressed="false" data-i18n="fMarket">Mercado</button>
+      </div>
+    </div>
+    <ul class="feed" id="feed"><li class="empty" data-i18n="feedEmpty">El feed se llena con cada pasada de la tarea programada.</li></ul>
+  </section>
+
+  <p class="note" data-i18n="foot">Las publicaciones en X se recogen leyendo las cuentas de los actores y la cobertura de prensa que las cita; cada evento enlaza su fuente. Las cifras difieren entre medios y pueden solaparse.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var claude=(window.claude&&window.claude.use)?window.claude:{use:async function(){return null}};
+  var T={
+    es:{status:'Incidente en curso',waiting:'Esperando datos…',howBtn:'Cómo ocurrió',sub:'Seguimiento del drenaje de hot wallets de Binance vía delegación EIP-7702: actores, wallets del atacante y lo que publica cada parte. Horas en UTC y Argentina (UTC−3).',
+      howTitle:'Cómo salieron US$5,6 mil M de Binance',close:'Cerrar',
+      s1t:'1 · Preparación',s1:'Wallet fondeada por Tornado Cash despliega el contrato sweeper a las 15:59 UTC y lo prueba en 3 wallets chicas.',
+      s2t:'2 · Toma de control',s2:'20:20 UTC: delegación EIP-7702 firmada con la clave de Binance 14. Cómo obtuvo esa firma sigue sin saberse.',
+      s3t:'3 · Drenaje',s3:'20:24 a 21:04 UTC: Binance 14, Hot Wallet 34 y Binance 16 se vacían hacia Exploiter 2.',
+      s4t:'4 · Dispersión',s4:'Circle y Tether congelan en el lugar; ~640 M USDT y 195.460 ETH siguen moviéndose.',
+      howNote:'Cifras preliminares, reconstruidas con datos de Etherscan y la cobertura hasta el 30/10.',
+      imgAlt:'Infografía del flujo de fondos: salidas por cadena (Ethereum 3,53 mil M, Bitcoin 1,45 mil M, Tron 628 M, L2 38 M), la delegación EIP-7702 de Binance 14, el drenaje hacia Exploiter 2 y la dispersión: 2,3 mil M congelados y unos 3,3 mil M sin congelar.',
+      kDrained:'Drenado (estimado)',kDrainedN:'rango según fuente',kFrozen:'Congelado por emisores',kWallets:'Wallets marcadas',kWalletsN:'en este tablero',kEvents:'Eventos registrados',
+      actors:'Actores',parties:' partes',loadingActors:'Cargando actores…',noActors:'Todavía no hay actores cargados.',
+      wallets:'Wallets y contratos',thLabel:'Etiqueta',thAddr:'Dirección',thRole:'Rol',thMove:'Movimiento conocido',loadingWallets:'Cargando wallets…',noWallets:'Sin wallets cargadas.',
+      wnote:'Las direcciones truncadas son las que publicó la prensa; se completan cuando aparece la versión entera en una fuente verificable.',
+      feed:'Feed en vivo',fAll:'Todo',fFreeze:'Congelamientos',fStatement:'Declaraciones',fMarket:'Mercado',feedEmpty:'El feed se llena con cada pasada de la tarea programada.',noKind:'No hay eventos de este tipo todavía.',
+      foot:'Las publicaciones en X se recogen leyendo las cuentas de los actores y la cobertura de prensa que las cita; cada evento enlaza su fuente. Las cifras difieren entre medios y pueden solaparse.',
+      updated:'Actualizado ',last:'último: ',now:'recién',ago:function(m){return m<60?'hace '+m+' min':'hace '+Math.floor(m/60)+' h '+(m%60)+' min'},
+      signin:'No se pudieron cargar los datos. Recargá la página en unos minutos.',copy:'copiar',copied:'copiado',selected:'seleccionado',source:'fuente',
+      themeLbl:'Tema',light:'Claro',dark:'Oscuro',
+      gateBar:'Tablero privado',gateEyebrow:'Acceso con contraseña',gateTitle:'Ingresá para ver el tablero',gateText:'El acceso es solo con contraseña. Pedísela a quien te pasó el link.',pwLabel:'Contraseña',enter:'Entrar',unlocking:'Verificando…',remember:'Recordar en este dispositivo',
+      gf1t:'Cada 30 min',gf1:'Se actualiza solo con lo que publican X, Etherscan y la prensa.',gf2t:'Con fuentes',gf2:'Cada evento enlaza la publicación o el registro on-chain de donde sale.',gf3t:'ES / EN',gf3:'Todo el contenido está en español y en inglés.',
+      needPw:'Escribí la contraseña.',wrongPw:'Contraseña incorrecta. Revisala y probá de nuevo.',loadFail:'No se pudo cargar el tablero. Revisá tu conexión y probá de nuevo.',
+      nextL:'Próxima actualización',running:'Actualizando…',refresh:'Actualizar',refreshNow:'Actualizar ahora',
+      fired:'Pasada lanzada. Tarda unos 5 a 10 minutos; los datos nuevos aparecen solos.',reloaded:'Datos recargados. La próxima pasada automática es en ',
+      fireFail:'No se pudo lanzar la actualización. Se recargaron los datos actuales.',cooldown:'Ya hay una pasada en curso. Si no termina, podés reintentar en ',
+      kinds:{onchain:'on-chain',freeze:'congelamiento',statement:'declaración',market:'mercado'},
+      sts:{attacker:'atacante',victim:'víctima',freezing:'congeló',investigating:'analiza',monitoring:'sin confirmar'}},
+    en:{status:'Incident ongoing',waiting:'Waiting for data…',howBtn:'How it happened',sub:'Tracking the drain of Binance hot wallets through an EIP-7702 delegation: who is involved, the attacker’s wallets and what each party is posting. Times in UTC and Argentina (UTC−3).',
+      howTitle:'How $5.6B left Binance',close:'Close',
+      s1t:'1 · Setup',s1:'A wallet funded through Tornado Cash deploys the sweeper contract at 15:59 UTC and tests it on 3 small wallets.',
+      s2t:'2 · Takeover',s2:'20:20 UTC: an EIP-7702 delegation signed with Binance 14’s key. How the attacker got that signature is still unknown.',
+      s3t:'3 · Drain',s3:'20:24 to 21:04 UTC: Binance 14, Hot Wallet 34 and Binance 16 are emptied into Exploiter 2.',
+      s4t:'4 · Dispersal',s4:'Circle and Tether freeze funds in place; about $640M USDT and 195,460 ETH keep moving.',
+      howNote:'Preliminary figures, rebuilt from Etherscan data and reporting up to 30 Oct.',
+      imgAlt:'Money-flow infographic: outflows by chain (Ethereum $3.53B, Bitcoin $1.45B, Tron $628M, L2s $38M), the EIP-7702 delegation of Binance 14, the drain into Exploiter 2 and the dispersal: $2.3B frozen and about $3.3B not frozen.',
+      kDrained:'Drained (estimate)',kDrainedN:'range by source',kFrozen:'Frozen by issuers',kWallets:'Flagged wallets',kWalletsN:'on this board',kEvents:'Logged events',
+      actors:'Actors',parties:' parties',loadingActors:'Loading actors…',noActors:'No actors loaded yet.',
+      wallets:'Wallets and contracts',thLabel:'Label',thAddr:'Address',thRole:'Role',thMove:'Known movement',loadingWallets:'Loading wallets…',noWallets:'No wallets loaded.',
+      wnote:'Truncated addresses are the ones reported in the press; they are completed once the full address appears in a verifiable source.',
+      feed:'Live feed',fAll:'All',fFreeze:'Freezes',fStatement:'Statements',fMarket:'Market',feedEmpty:'The feed fills in with each run of the scheduled task.',noKind:'No events of this type yet.',
+      foot:'Posts on X are collected by reading the actors’ accounts and the press coverage that cites them; every event links its source. Figures differ between outlets and may overlap.',
+      updated:'Updated ',last:'latest: ',now:'just now',ago:function(m){return m<60?m+' min ago':Math.floor(m/60)+' h '+(m%60)+' min ago'},
+      signin:'Could not load the data. Reload the page in a few minutes.',copy:'copy',copied:'copied',selected:'selected',source:'source',
+      themeLbl:'Theme',light:'Light',dark:'Dark',
+      gateBar:'Private board',gateEyebrow:'Password access',gateTitle:'Enter to view the board',gateText:'Access is by password only. Ask the person who sent you the link.',pwLabel:'Password',enter:'Enter',unlocking:'Checking…',remember:'Remember on this device',
+      gf1t:'Every 30 min',gf1:'Updates itself with what X, Etherscan and the press publish.',gf2t:'Sourced',gf2:'Every event links the post or on-chain record it comes from.',gf3t:'ES / EN',gf3:'All content is in Spanish and English.',
+      needPw:'Type the password.',wrongPw:'Wrong password. Check it and try again.',loadFail:'Could not load the board. Check your connection and try again.',
+      nextL:'Next update',running:'Updating…',refresh:'Refresh',refreshNow:'Update now',
+      fired:'Run started. It takes about 5 to 10 minutes; new data appears on its own.',reloaded:'Data reloaded. The next automatic run is in ',
+      fireFail:'Could not start an update. Reloaded the current data.',cooldown:'A run is already in progress. If it does not finish, you can retry in ',
+      kinds:{onchain:'on-chain',freeze:'freeze',statement:'statement',market:'market'},
+      sts:{attacker:'attacker',victim:'victim',freezing:'froze funds',investigating:'analyzing',monitoring:'unconfirmed'}}
+  };
+  var state={events:[],wallets:[],actors:[],meta:null,filter:'all',lang:'es',ready:false};
+  function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+  state.filter=ls('bwr-filter')||'all';
+  state.lang=ls('bwr-lang')||((navigator.language||'').toLowerCase().indexOf('es')===0?'es':'en');
+  function t(k){return T[state.lang][k]}
+  function pick(o,f){return (state.lang==='en'&&o[f+'_en'])?o[f+'_en']:o[f]}
+  function $(id){return document.getElementById(id)}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function safeUrl(u){return /^https:\/\//.test(u||'')?u:null}
+  function fmtTime(iso){
+    var d=new Date(iso); if(isNaN(d)) return {utc:'—',art:''};
+    var p=function(n){return String(n).padStart(2,'0')};
+    var a=new Date(d.getTime()-3*3600e3);
+    return {utc:p(d.getUTCHours())+':'+p(d.getUTCMinutes())+' UTC',art:p(a.getUTCDate())+'/'+p(a.getUTCMonth()+1)+' '+p(a.getUTCHours())+':'+p(a.getUTCMinutes())+' ART'};
+  }
+  function ago(iso){var m=Math.round((Date.now()-new Date(iso))/60000);if(isNaN(m))return'—';if(m<1)return t('now');return t('ago')(m)}
+
+  /* theme */
+  var root=document.documentElement;
+  function effTheme(){var a=root.getAttribute('data-theme');if(a==='light'||a==='dark')return a;return matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}
+  function syncThemeBtns(){var e=effTheme();document.querySelectorAll('[data-theme-set]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.themeSet===e))})}
+  var savedTheme=ls('bwr-theme'); if(savedTheme==='light'||savedTheme==='dark')root.setAttribute('data-theme',savedTheme);
+  $('theme').addEventListener('click',function(ev){var b=ev.target.closest('[data-theme-set]');if(!b)return;root.setAttribute('data-theme',b.dataset.themeSet);ls('bwr-theme',b.dataset.themeSet);syncThemeBtns()});
+  try{matchMedia('(prefers-color-scheme: light)').addEventListener('change',syncThemeBtns)}catch(e){}
+  new MutationObserver(syncThemeBtns).observe(root,{attributes:true,attributeFilter:['data-theme']});
+
+  /* language */
+  function applyLang(){
+    root.lang=state.lang;
+    document.querySelectorAll('[data-i18n]').forEach(function(el){var v=t(el.dataset.i18n);if(typeof v==='string')el.textContent=v});
+    $('how-img').alt=t('imgAlt');
+    $('theme').setAttribute('aria-label',t('themeLbl'));
+    document.querySelector('[data-theme-set="light"]').setAttribute('aria-label',t('light'));
+    document.querySelector('[data-theme-set="dark"]').setAttribute('aria-label',t('dark'));
+    document.querySelectorAll('[data-lang]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.lang===state.lang))});
+    $('filters').setAttribute('aria-label',state.lang==='en'?'Filter by type':'Filtrar por tipo');
+    renderAll();
+  }
+  $('lang').addEventListener('click',function(ev){var b=ev.target.closest('[data-lang]');if(!b)return;state.lang=b.dataset.lang;ls('bwr-lang',state.lang);applyLang()});
+
+  function renderMeta(){
+    var m=state.meta;
+    if(!m){ if(!state.ready)$('upd').textContent=t('waiting'); return }
+    $('k-drained').textContent=pick(m,'drained')||'—';
+    $('k-drained-n').textContent=pick(m,'drainedNote')||t('kDrainedN');
+    $('k-frozen').textContent=pick(m,'frozen')||'—';
+    if(m.frozenNote)$('k-frozen-n').textContent=pick(m,'frozenNote');
+    $('st').textContent=pick(m,'status')||t('status');
+    if(m.updatedAt)$('upd').textContent=t('updated')+ago(m.updatedAt)+' · '+fmtTime(m.updatedAt).art;
+  }
+  function renderActors(){
+    var el=$('actors');
+    if(!state.actors.length){el.innerHTML='<div class="empty">'+esc(state.ready?t('noActors'):t('loadingActors'))+'</div>';$('n-actors').textContent='';return}
+    var order={attacker:0,victim:1,freezing:2,investigating:3,monitoring:4};
+    var list=state.actors.slice().sort(function(a,b){return ((order[a.status]!=null?order[a.status]:9)-(order[b.status]!=null?order[b.status]:9))||(a.name||'').localeCompare(b.name||'')});
+    $('n-actors').textContent=list.length+t('parties');
+    el.innerHTML=list.map(function(a){
+      var hs=(a.handles||[]).map(function(h){var u=safeUrl(h.url);return u?'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(h.label)+'</a>':''}).join('');
+      var st=t('sts')[a.status]||a.status;
+      return '<article class="actor"><div class="top"><strong>'+esc(pick(a,'name'))+'</strong><span class="pill s-'+esc(a.status)+'">'+esc(st)+'</span></div>'+
+        '<span class="role">'+esc(pick(a,'role'))+'</span><p>'+esc(pick(a,'stance'))+'</p>'+(hs?'<div class="handles">'+hs+'</div>':'')+'</article>';
+    }).join('');
+  }
+  function renderWallets(){
+    var el=$('wallets'); $('k-wallets').textContent=state.wallets.length||'—';
+    if(!state.wallets.length){el.innerHTML='<tr><td colspan="4" class="empty">'+esc(state.ready?t('noWallets'):t('loadingWallets'))+'</td></tr>';return}
+    var list=state.wallets.slice().sort(function(a,b){return (a.order||99)-(b.order||99)});
+    el.innerHTML=list.map(function(w,i){
+      var u=safeUrl(w.url), addrTxt=pick(w,'address');
+      var addr=u?'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(addrTxt)+'</a>':esc(addrTxt);
+      var full=w.full?'<button class="copy" type="button" data-copy="'+esc(w.address)+'" id="cp-'+i+'">'+esc(t('copy'))+'</button>':'';
+      var role=t('sts')[w.side]||pick(w,'role');
+      return '<tr><td><strong>'+esc(pick(w,'label'))+'</strong><br><span class="lbl">'+esc(w.chain||'Ethereum')+'</span></td><td class="addr">'+addr+full+'</td><td><span class="pill s-'+esc(w.side||'monitoring')+'">'+esc(role)+'</span></td><td>'+esc(pick(w,'note'))+'</td></tr>';
+    }).join('');
+  }
+  function renderFeed(){
+    var el=$('feed');
+    var evs=state.events.filter(function(e){return state.filter==='all'||e.kind===state.filter});
+    $('k-events').textContent=state.events.length||'—';
+    $('k-last').textContent=state.events[0]?t('last')+ago(state.events[0].ts):'—';
+    if(!evs.length){el.innerHTML='<li class="empty">'+esc(state.events.length?t('noKind'):t('feedEmpty'))+'</li>';return}
+    el.innerHTML=evs.map(function(e){
+      var tm=fmtTime(e.ts), u=safeUrl(e.url), kl=t('kinds')[e.kind]||e.kind;
+      return '<li class="ev k-'+esc(e.kind)+'"><time datetime="'+esc(e.ts)+'"><b>'+tm.utc+'</b>'+tm.art+'</time><div>'+
+        '<div class="meta"><strong>'+esc(pick(e,'actor'))+'</strong><span>· '+esc(kl)+'</span></div>'+
+        '<p>'+esc(pick(e,'text'))+'</p>'+(u?'<a class="src" href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(e.source||t('source'))+'</a>':(e.source?'<span class="src lbl">'+esc(e.source)+'</span>':''))+'</div></li>';
+    }).join('');
+  }
+  function renderAll(){renderMeta();renderActors();renderWallets();renderFeed()}
+
+  $('filters').addEventListener('click',function(ev){
+    var b=ev.target.closest('button');if(!b)return;state.filter=b.dataset.k;ls('bwr-filter',state.filter);
+    this.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))});renderFeed();
+  });
+  document.querySelectorAll('#filters button').forEach(function(x){x.setAttribute('aria-pressed',String(x.dataset.k===state.filter))});
+  document.addEventListener('click',function(ev){
+    var b=ev.target.closest('[data-copy]');if(!b)return;var v=b.dataset.copy;
+    function sel(){var r=document.createRange();r.selectNodeContents(b.previousSibling||b.parentNode);var s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent=t('selected')}
+    try{navigator.clipboard.writeText(v).then(function(){b.textContent=t('copied')},sel)}catch(e){sel()}
+  });
+
+  var dlg=$('how');
+  function openHow(){try{dlg.showModal()}catch(e){dlg.setAttribute('open','')}}
+  $('open-how').addEventListener('click',openHow);
+  $('close-how').addEventListener('click',function(){dlg.close()});
+  dlg.addEventListener('close',function(){ls('bwr-seen-how','1')});
+  dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close()});
+
+  setInterval(function(){renderMeta();if(state.events[0])$('k-last').textContent=t('last')+ago(state.events[0].ts)},30000);
+
+  /* countdown to the scheduled run (every hour at :49 UTC) + refresh */
+  /* two scheduled runs: cloud news pass at :49 UTC, Chrome pass reading X at :19 UTC -> one every 30 min */
+  var TRIGGER_ID='', OFFSET=19*60e3, HOUR=30*60e3, RUN_WINDOW=12*60e3, COOLDOWN=10*60e3;
+  var dbRef=null, mcp=null, canFire=false, toastTimer=null;
+  function lastRun(now){return Math.floor((now-OFFSET)/HOUR)*HOUR+OFFSET}
+  function mmss(ms){var s=Math.max(0,Math.ceil(ms/1000));var m=Math.floor(s/60);return String(m).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+  function updAt(){return state.meta&&state.meta.updatedAt?new Date(state.meta.updatedAt).getTime():0}
+  function firedAt(){var v=+ls('bwr-fired');return isNaN(v)?0:v}
+  /* "running" only after a manual run from this browser, until fresh data lands or 15 min pass */
+  var RUN_MAX=15*60e3;
+  function isRunning(now){
+    var f=firedAt(), u=updAt();
+    return !!(f&&now-f<RUN_MAX&&u<f);
+  }
+  function tick(){
+    var now=Date.now(), lr=lastRun(now), nx=lr+HOUR, run=isRunning(now), v=$('next-v');
+    v.textContent=run?t('running')+' '+mmss(now-firedAt()):mmss(nx-now); v.classList.toggle('busy',!!run);
+    $('ring').setAttribute('stroke-dashoffset',String(run?0:56.55*((now-lr)/HOUR)));
+    var rb=$('refresh'); rb.classList.toggle('spin',!!run);
+  }
+  function toast(msg){var el=document.querySelector('.toast');if(!el){el=document.createElement('div');el.className='toast';el.setAttribute('role','status');document.body.appendChild(el)}el.textContent=msg;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.hidden=true},5000)}
+  function docs(s){return s.docs.map(function(d){return d.data()}).filter(Boolean)}
+  var usingSnap=true, PW=null, keyCache={}, unlocked=false;
+  function b64(x){var bin=atob(x),u=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u}
+  async function deriveKey(pw,env){
+    var id=env.salt+'|'+env.iter; if(keyCache[id])return keyCache[id];
+    var base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+    var k=await crypto.subtle.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:b64(env.salt),iterations:env.iter},base,{name:'AES-GCM',length:256},false,['decrypt']);
+    keyCache={}; keyCache[id]=k; return k;
+  }
+  async function fetchEnv(name){var r=await fetch(name+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw {code:'net'};return r.json()}
+  async function decrypt(env,pw){
+    var k=await deriveKey(pw,env);
+    try{return await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(env.iv)},k,b64(env.ct))}catch(e){throw {code:'badpw'}}
+  }
+  function applySnap(snap){
+    state.events=(snap.events||[]).slice().sort(function(a,b){return a.ts<b.ts?1:-1});
+    state.wallets=snap.wallets||[]; state.actors=snap.actors||[]; state.meta=snap.meta||null; state.ready=true; renderAll(); tick();
+  }
+  async function loadSnapshot(){
+    if(!PW)return false;
+    try{var env=await fetchEnv('data.enc.json');var buf=await decrypt(env,PW);if(usingSnap)applySnap(JSON.parse(new TextDecoder().decode(buf)));return true}catch(e){return false}
+  }
+  var imgLoaded=false;
+  async function loadImage(){
+    if(imgLoaded||!PW)return; try{var env=await fetchEnv('flujo.enc.json');var buf=await decrypt(env,PW);$('how-img').src=URL.createObjectURL(new Blob([buf],{type:env.mime||'image/png'}));imgLoaded=true}catch(e){}
+  }
+  function forget(){try{sessionStorage.removeItem('bwr-pw')}catch(e){}try{localStorage.removeItem('bwr-pw')}catch(e){}}
+  async function unlock(pw,remember,silent){
+    var env;
+    try{env=await fetchEnv('data.enc.json')}catch(e){return 'net'}
+    var buf;
+    try{buf=await decrypt(env,pw)}catch(e){return e&&e.code==='badpw'?'badpw':'net'}
+    PW=pw;
+    try{(remember?localStorage:sessionStorage).setItem('bwr-pw',pw)}catch(e){}
+    applySnap(JSON.parse(new TextDecoder().decode(buf)));
+    showApp(!silent);
+    return 'ok';
+  }
+  function showApp(fresh){
+    if(unlocked)return; unlocked=true;
+    document.body.classList.add('unlocked');
+    $('app').hidden=false; document.querySelectorAll('.app-only').forEach(function(el){el.hidden=false});
+    setInterval(loadSnapshot,120000);
+    loadImage();
+    if(ls('bwr-seen-how')!=='1')openHow();
+    startLive();
+  }
+  async function reload(){
+    if(usingSnap){await loadSnapshot();return}
+    if(!dbRef)return;
+    try{
+      var r=await Promise.all([dbRef.collection('events').orderBy('ts','desc').limit(400).get(),dbRef.collection('wallets').get(),dbRef.collection('actors').get(),dbRef.doc('meta/status').get()]);
+      state.events=docs(r[0]);state.wallets=docs(r[1]);state.actors=docs(r[2]);state.meta=r[3].data()||state.meta;renderAll();
+    }catch(e){}
+  }
+  function setRefreshLabel(){$('refresh-l').textContent=canFire?t('refreshNow'):t('refresh')}
+  $('refresh').addEventListener('click',async function(){
+    var b=this, now=Date.now();
+    if(canFire){
+      if(isRunning(now)){toast(t('cooldown')+mmss(RUN_MAX-(now-firedAt())));return}
+      b.disabled=true;
+      try{
+        await mcp.callTool('Claude Code Remote','fire_trigger',{trigger_id:TRIGGER_ID},{cache:false});
+        ls('bwr-fired',String(Date.now()));toast(t('fired'));
+      }catch(e){await reload();toast(t('fireFail'))}
+      b.disabled=false;tick();return;
+    }
+    b.disabled=true;await reload();b.disabled=false;
+    toast(t('reloaded')+mmss(lastRun(now)+HOUR-now)+'.');
+  });
+  var _applyLang=applyLang; applyLang=function(){_applyLang();setRefreshLabel();tick()};
+  $('lang').addEventListener('click',function(){setRefreshLabel();tick()});
+  setInterval(tick,1000);
+
+  $('gate-f').addEventListener('submit',async function(ev){
+    ev.preventDefault();
+    var pw=$('pw').value, err=$('pw-err'), go=$('pw-go');
+    if(!pw){err.textContent=t('needPw');err.hidden=false;$('pw').setAttribute('aria-invalid','true');$('pw').focus();return}
+    go.disabled=true; go.firstChild.textContent=t('unlocking'); err.hidden=true;
+    var res=await unlock(pw,$('remember').checked,false);
+    go.disabled=false; go.firstChild.textContent=t('enter');
+    if(res==='ok'){$('pw').value='';return}
+    err.textContent=res==='badpw'?t('wrongPw'):t('loadFail'); err.hidden=false; $('pw').setAttribute('aria-invalid','true'); $('pw').select();
+  });
+  $('pw').addEventListener('input',function(){this.removeAttribute('aria-invalid');$('pw-err').hidden=true});
+
+  syncThemeBtns(); applyLang(); tick();
+
+  (async function(){
+    var saved=null; try{saved=sessionStorage.getItem('bwr-pw')||localStorage.getItem('bwr-pw')}catch(e){}
+    if(saved){var r=await unlock(saved,!!ls('bwr-pw'),true);if(r==='badpw')forget();if(r==='ok')return}
+    try{$('pw').focus({preventScroll:true})}catch(e){}
+  })();
+
+  /* owner and editors read the live database instead of the encrypted copy */
+  function startLive(){
+    (async function(){
+      try{
+        var u=await claude.use('user'); if(!u)return;
+        var editor=await u.canEdit(); if(!editor)return;
+        var db=await claude.use('db'); if(!db)return;
+        dbRef=db; usingSnap=false;
+        db.collection('events').orderBy('ts','desc').limit(400).onSnapshot(function(s){state.events=docs(s);renderFeed()});
+        db.collection('wallets').onSnapshot(function(s){state.wallets=docs(s);renderWallets()});
+        db.collection('actors').onSnapshot(function(s){state.actors=docs(s);renderActors()});
+        db.doc('meta/status').onSnapshot(function(s){state.meta=s.data()||state.meta;renderMeta();tick()});
+      }catch(e){}
+    })();
+  }
+  (async function(){
+    try{
+      var u=await claude.use('user'); var owner=u?await u.isOwner():false;
+      if(!owner)return;
+      var m=await claude.use('mcp'); if(!m)return;
+      mcp=m; canFire=true; setRefreshLabel();
+    }catch(e){}
+  })();
+})();
+</script>
+
+</body>
+</html>
